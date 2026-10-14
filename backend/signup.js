@@ -14,7 +14,7 @@ export async function signUpUser({
     role = "student",
     termsAccepted,
 }) {
-    if(!fullname?.trim()){
+    if(!fullName?.trim()){
         throw new Error("Full name is required");
     }
 

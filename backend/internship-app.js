@@ -4,7 +4,7 @@ import {
     doc,
     getDoc,
     serverTimestamp,
-} from "firebase/firestore";    
+} from "firebase/firestore";
 
 import { auth, db } from "./firebaseConfig";
 
@@ -47,7 +47,7 @@ export async function applyForInternship({
         throw new Error("Course is required.");
     }
 
-    if (!resumeUrl?.trim()) {
+    if (resumeUrl && typeof resumeUrl !== "string") {
         throw new Error("Resume URL must be a string.");
     }
 
@@ -70,14 +70,14 @@ export async function applyForInternship({
 
     const applicationData = {
         studentId: user.uid,
-        employerId: internship.employerId,
+        employerId: internshipData.employerId, 
         jobId,
         fullLegalName: fullLegalName.trim(),
         contactEmail: contactEmail.trim().toLowerCase(),
         phoneNumber: phoneNumber.trim(),
         school: school.trim(),
         course: course.trim(),
-        resumeUrl: resumeUrl.trim(),
+        resumeUrl: resumeUrl ? resumeUrl.trim() : "", 
         status: "pending",
         appliedAt: serverTimestamp(),
     };

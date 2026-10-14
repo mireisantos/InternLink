@@ -4,7 +4,7 @@ import {
     serverTimestamp,
 } from "firebase/firestore";
 
-import {auth, db} from "./firebaseConfig";
+import { auth, db } from "./firebaseConfig";
 
 export async function postInternship({
     title,
@@ -36,7 +36,7 @@ export async function postInternship({
         throw new Error("Location is required.");
     }
 
-    if(!allowance?.trim()){
+    if (!allowance?.trim()) {
         throw new Error("Allowance is required.");
     }
 
@@ -48,13 +48,15 @@ export async function postInternship({
         throw new Error("Category is required.");
     }
 
-    if(
-        !array.isArray(requirements) ||
+    if (
+        !Array.isArray(requirements) ||
         !requirements.every((item) => typeof item === "string")
-    )
+    ) {
+        throw new Error("Requirements must be an array of strings.");
+    }
 
-    if(
-        !array.isArray(benefits) ||
+    if (
+        !Array.isArray(benefits) ||
         !benefits.every((item) => typeof item === "string")
     ) {
         throw new Error("Benefits must be an array of strings.");
