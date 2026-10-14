@@ -9,7 +9,7 @@ import {
     updateDoc,
     where
 } from "firebase/firestore";
-import { auth, db } from "./firebaseConfig";
+import { auth, db } from "./firebaseConfig.js";
 
 //fetch user data
 export async function getStudentApplications() {
