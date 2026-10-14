@@ -4,7 +4,7 @@ import {
     serverTimestamp,
 } from "firebase/firestore";
 
-import { auth, db } from "./firebaseConfig";
+import { auth, db } from "./firebaseConfig.js";
 
 export async function postInternship({
     title,
@@ -78,6 +78,7 @@ export async function postInternship({
         requirements,
         benefits,
         requiresResume,
+        isActive: true,
         createdBy: user.uid,
         createdAt: serverTimestamp(),
     };

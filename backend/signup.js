@@ -4,7 +4,7 @@ import {
     serverTimestamp,
     setDoc
 } from "firebase/firestore";
-import { auth, db } from "./firebaseConfig";
+import { auth, db } from "./firebaseConfig.js";
 
 
 export async function signUpUser({

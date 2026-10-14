@@ -2,6 +2,7 @@
   "name": "internlink",
   "main": "expo-router/entry",
   "version": "1.0.0",
+  "type": "module",
   "dependencies": {
     "@expo/ui": "~57.0.22",
     "expo": "~57.0.27",
@@ -17,6 +18,7 @@
     "expo-symbols": "~57.0.3",
     "expo-system-ui": "~57.0.4",
     "expo-web-browser": "~57.0.3",
+    "firebase": "^13.0.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-native": "0.86.3",
