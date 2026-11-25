@@ -1,5 +1,5 @@
 
-import { Link } from 'expo-router';
+import { Link, useLocalSearchParams, type Href } from 'expo-router';
 import { useRef, useState } from 'react';
 import type { TextInputProps } from 'react-native';
 import {
@@ -102,7 +102,8 @@ function Field({
 }
 
 export default function SignupScreen() {
-  const [role, setRole] = useState<'student' | 'employer'>('student');
+  const params = useLocalSearchParams<{ role?: string }>();
+  const [role, setRole] = useState<'student' | 'employer'>(params.role === 'employer' ? 'employer' : 'student');
 
   const [fields, setFields] = useState<SignupFields>({
     fullName: '',
@@ -239,8 +240,8 @@ export default function SignupScreen() {
             </View>
 
             {success ? (
-              <Link href="/home" style={styles.successLink}>
-                Continue to home →
+              <Link href={(role === 'employer' ? '/employer-dashboard' : '/home') as Href} style={styles.successLink}>
+                {role === 'employer' ? 'Continue to employer dashboard →' : 'Continue to home →'}
               </Link>
             ) : (
               <>
@@ -416,7 +417,7 @@ export default function SignupScreen() {
                   )}
                 </Pressable>
 
-                <Link href="/" asChild>
+                <Link href={"/login" as Href} asChild>
                   <Pressable
                     accessibilityRole="button"
                     disabled={locked}

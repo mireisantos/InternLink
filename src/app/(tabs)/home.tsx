@@ -1,337 +1,80 @@
-
-import {
-  ArrowRight,
-  GraduationCap,
-  Heart,
-  MapPin,
-  Search,
-} from 'lucide-react-native';
-
-import {
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { useEffect, useState } from "react";
+import { router } from "expo-router";
+import { ArrowRight, GraduationCap, Search } from "lucide-react-native";
+import { Text, TouchableOpacity, View } from "react-native";
+import { EmptyState, Heading, JobCard, Page, palette } from "@/components/internlink-ui";
+import { fetchCurrentProfile, fetchInternships } from "@/lib/internship-service";
+import type { Internship } from "@/lib/sample-internships";
 
 export default function HomeScreen() {
+  const [jobs, setJobs] = useState<Internship[]>([]);
+  const [name, setName] = useState("there");
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let active = true;
+    Promise.all([fetchInternships(), fetchCurrentProfile()])
+      .then(([items, profile]) => {
+        if (!active) return;
+        setJobs(items.slice(0, 3));
+        setName(String(profile?.fullName || "there").split(" ")[0]);
+      })
+      .catch(() => {
+        if (active) setJobs([]);
+      })
+      .finally(() => active && setLoading(false));
+    return () => { active = false; };
+  }, []);
+
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.content}
+    <Page>
+      <View style={{ gap: 2 }}>
+        <Text style={{ color: palette.muted, fontSize: 14 }}>Good morning,</Text>
+        <Text style={{ color: palette.ink, fontSize: 25, fontWeight: "800" }}>{name} 👋</Text>
+      </View>
+
+      <TouchableOpacity
+        onPress={() => router.push("/(tabs)/explore" as any)}
+        style={{ borderWidth: 1, borderColor: palette.border, borderRadius: 12, paddingHorizontal: 13, height: 46, flexDirection: "row", alignItems: "center", gap: 9 }}
       >
-        {/* Greeting */}
-        <View style={styles.header}>
-          <Text style={styles.greeting}>Good morning,</Text>
-          <Text style={styles.name}>JD 👋</Text>
+        <Search size={18} color={palette.muted} />
+        <Text style={{ color: palette.muted, fontSize: 13 }}>Search internships...</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        onPress={() => router.push("/(tabs)/explore" as any)}
+        style={{ backgroundColor: palette.navy, borderRadius: 15, padding: 18, flexDirection: "row", alignItems: "center", gap: 12 }}
+      >
+        <View style={{ flex: 1, gap: 8 }}>
+          <Text style={{ color: palette.white, fontSize: 22, fontWeight: "800" }}>Your next step{"\n"}starts here.</Text>
+          <Text style={{ color: "#D9E5F5", fontSize: 12, lineHeight: 18 }}>Explore internships, build your skills, and get closer to your goals.</Text>
         </View>
-
-        {/* Search Bar */}
-        <View style={styles.searchContainer}>
-          <Search size={19} color="#7889A3" />
-
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search internships..."
-            placeholderTextColor="#7889A3"
-          />
+        <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: palette.white, alignItems: "center", justifyContent: "center" }}>
+          <ArrowRight size={21} color={palette.navy} />
         </View>
+      </TouchableOpacity>
 
-        {/* Promotional Banner */}
-        <View style={styles.banner}>
-          <View style={styles.bannerText}>
-            <Text style={styles.bannerTitle}>
-              Your next step
-              {'\n'}
-              starts here.
-            </Text>
+      <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+        <Heading title="Recommended for you" />
+        <TouchableOpacity onPress={() => router.push("/(tabs)/explore" as any)}>
+          <Text style={{ color: palette.navy, fontWeight: "700", fontSize: 12 }}>See all</Text>
+        </TouchableOpacity>
+      </View>
 
-            <Text style={styles.bannerDescription}>
-              Explore internships, build your skills,
-              and get closer to your goals.
-            </Text>
-          </View>
+      {loading ? <Text style={{ color: palette.muted }}>Loading internships...</Text> :
+        jobs.length ? jobs.map((job) => (
+          <JobCard key={job.id} title={job.title} company={job.company} location={job.location}
+            allowance={job.allowance} onPress={() => router.push({ pathname: "/internship-details", params: { id: job.id } } as any)} />
+        )) : <EmptyState title="No internships yet" description="New opportunities will appear here when employers publish their listings." />}
 
-          <View style={styles.arrowCircle}>
-            <ArrowRight size={24} color="#0D2D60" />
-          </View>
+      <View style={{ backgroundColor: palette.pale, borderRadius: 13, padding: 16, gap: 7 }}>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+          <GraduationCap size={19} color={palette.navy} />
+          <Text style={{ color: palette.navy, fontWeight: "800" }}>Why InternLink?</Text>
         </View>
-
-        {/* Recommended Internships */}
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>
-            Recommended for you
-          </Text>
-
-          <Text style={styles.seeAll}>See all</Text>
-        </View>
-
-        {/* Internship Card 1 */}
-        <View style={styles.internshipCard}>
-          <View style={styles.companyIcon}>
-            <Text style={styles.companyLetter}>N</Text>
-          </View>
-
-          <View style={styles.internshipInfo}>
-            <Text style={styles.jobTitle}>
-              Software Engineering Intern
-            </Text>
-
-            <Text style={styles.companyName}>SunLife</Text>
-
-            <View style={styles.locationRow}>
-              <MapPin size={13} color="#7889A3" />
-              <Text style={styles.jobLocation}>
-                Makati City • On-site
-              </Text>
-            </View>
-          </View>
-
-          <Heart size={22} color="#7889A3" />
-        </View>
-
-        {/* Internship Card 2 */}
-        <View style={styles.internshipCard}>
-          <View style={styles.companyIcon}>
-            <Text style={styles.companyLetter}>P</Text>
-          </View>
-
-          <View style={styles.internshipInfo}>
-            <Text style={styles.jobTitle}>
-              Marketing Intern
-            </Text>
-
-            <Text style={styles.companyName}>
-              Pspsps Media
-            </Text>
-
-            <View style={styles.locationRow}>
-              <MapPin size={13} color="#7889A3" />
-              <Text style={styles.jobLocation}>
-                Pasig City • Hybrid
-              </Text>
-            </View>
-
-            <Text style={styles.allowance}>
-              Weekly Allowance
-            </Text>
-          </View>
-
-          <Heart size={22} color="#7889A3" />
-        </View>
-
-        {/* Why InternLink */}
-        <Text style={styles.sectionTitle}>
-          Why InternLink?
-        </Text>
-
-        <View style={styles.whyCard}>
-          <View style={styles.whyTitleRow}>
-            <GraduationCap size={19} color="#0D2D60" />
-
-            <Text style={styles.whyTitle}>
-              Internship-first
-            </Text>
-          </View>
-
-          <Text style={styles.whyDescription}>
-            Track applications, interviews, and offers
-          </Text>
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+        <Text style={{ color: palette.ink, fontWeight: "700", fontSize: 13 }}>Internship-first</Text>
+        <Text style={{ color: palette.muted, fontSize: 12, lineHeight: 18 }}>Track applications, interviews, and offers in one place.</Text>
+      </View>
+    </Page>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-  },
-
-  content: {
-    paddingHorizontal: 22,
-    paddingTop: 40,
-    paddingBottom: 30,
-  },
-
-  header: {
-    marginBottom: 26,
-  },
-
-  greeting: {
-    fontSize: 15,
-    color: '#7889A3',
-  },
-
-  name: {
-    fontSize: 26,
-    fontWeight: 'bold',
-    color: '#172B4D',
-  },
-
-  searchContainer: {
-    height: 54,
-    borderWidth: 1,
-    borderColor: '#D8E2F0',
-    borderRadius: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    paddingHorizontal: 18,
-    marginBottom: 22,
-  },
-
-  searchInput: {
-    flex: 1,
-    fontSize: 15,
-    color: '#172B4D',
-  },
-
-  banner: {
-    backgroundColor: '#0D2D60',
-    borderRadius: 18,
-    padding: 22,
-    minHeight: 155,
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 26,
-  },
-
-  bannerText: {
-    flex: 1,
-  },
-
-  bannerTitle: {
-    color: '#FFFFFF',
-    fontSize: 22,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-
-  bannerDescription: {
-    color: '#D8E2F0',
-    fontSize: 13,
-    lineHeight: 20,
-  },
-
-  arrowCircle: {
-    width: 46,
-    height: 46,
-    borderRadius: 23,
-    backgroundColor: '#FFFFFF',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginLeft: 8,
-  },
-
-  sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 14,
-  },
-
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#172B4D',
-    marginBottom: 14,
-  },
-
-  seeAll: {
-    color: '#0D2D60',
-    fontWeight: 'bold',
-    fontSize: 13,
-  },
-
-  internshipCard: {
-    borderWidth: 1,
-    borderColor: '#D8E2F0',
-    borderRadius: 17,
-    padding: 12,
-    minHeight: 126,
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginBottom: 12,
-  },
-
-  companyIcon: {
-    width: 46,
-    height: 46,
-    borderRadius: 23,
-    backgroundColor: '#0D2D60',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-  },
-
-  companyLetter: {
-    color: '#FFFFFF',
-    fontSize: 21,
-    fontWeight: 'bold',
-  },
-
-  internshipInfo: {
-    flex: 1,
-  },
-
-  jobTitle: {
-    fontSize: 15,
-    fontWeight: 'bold',
-    color: '#172B4D',
-    marginBottom: 5,
-  },
-
-  companyName: {
-    fontSize: 14,
-    color: '#7889A3',
-    marginBottom: 8,
-  },
-
-  locationRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-
-  jobLocation: {
-    fontSize: 12,
-    color: '#7889A3',
-  },
-
-  allowance: {
-    fontSize: 13,
-    fontWeight: 'bold',
-    color: '#172B4D',
-    marginTop: 8,
-  },
-
-  whyCard: {
-    backgroundColor: '#E8F0FA',
-    borderRadius: 18,
-    padding: 22,
-    marginTop: 0,
-  },
-
-  whyTitleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 5,
-    marginBottom: 10,
-  },
-
-  whyTitle: {
-    fontSize: 17,
-    fontWeight: 'bold',
-    color: '#0D2D60',
-  },
-
-  whyDescription: {
-    fontSize: 13,
-    color: '#7889A3',
-  },
-});

@@ -3,6 +3,9 @@ import {
     collection,
     doc,
     getDoc,
+    getDocs,
+    query,
+    where,
     serverTimestamp,
 } from "firebase/firestore";
 
@@ -21,6 +24,11 @@ export async function applyForInternship({
 
     if (!user) {
         throw new Error("You must be logged in to apply for an internship.");
+    }
+
+    const profileSnapshot = await getDoc(doc(db, "users", user.uid));
+    if (!profileSnapshot.exists() || profileSnapshot.data().role !== "student") {
+        throw new Error("Only student accounts can apply for internships.");
     }
 
     if (!jobId?.trim()) {
@@ -68,10 +76,28 @@ export async function applyForInternship({
         throw new Error("This internship requires a resume to apply.");
     }
 
+    if (internshipData.requiresResume && !/^https:\/\//i.test(resumeUrl.trim())) {
+        throw new Error("Please provide a valid HTTPS resume link.");
+    }
+
+    const existingApplications = await getDocs(query(
+        collection(db, "applications"),
+        where("studentId", "==", user.uid),
+    ));
+    const alreadyApplied = existingApplications.docs.some(
+        (application) => application.data().jobId === jobId
+    );
+    if (alreadyApplied) {
+        throw new Error("You have already applied for this internship.");
+    }
+
     const applicationData = {
         studentId: user.uid,
-        employerId: internshipData.employerId, 
+        employerId: internshipData.employerId,
         jobId,
+        jobTitle: internshipData.title || "",
+        company: internshipData.company || "",
+        location: internshipData.location || "",
         fullLegalName: fullLegalName.trim(),
         contactEmail: contactEmail.trim().toLowerCase(),
         phoneNumber: phoneNumber.trim(),

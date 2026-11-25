@@ -45,16 +45,22 @@ export async function getStudentApplications() {
 
 //manual/tap 
 export async function updateApplicationStatus(applicationId, newStatus) {
-    const validStatuses = ["Applied", "Interview", "Accepted", "Rejected"];
+    const validStatuses = ["pending", "under review", "interview", "accepted", "rejected"];
     
     if (!validStatuses.includes(newStatus)) {
         throw new Error("Invalid status update.");
     }
 
+    const user = auth.currentUser;
+    if (!user) throw new Error("You must be logged in to update an application.");
+
     const appRef = doc(db, "applications", applicationId);
-    await updateDoc(appRef, {
-        status: newStatus
-    });
+    const appSnapshot = await getDoc(appRef);
+    if (!appSnapshot.exists() || appSnapshot.data().employerId !== user.uid) {
+        throw new Error("Only the employer who received this application can update its status.");
+    }
+
+    await updateDoc(appRef, { status: newStatus });
 }
 
 //for toggle: save/unsave internship
