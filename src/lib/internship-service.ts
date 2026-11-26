@@ -11,16 +11,19 @@ import {
 import { auth, db } from "../../backend/firebaseConfig.js";
 import { sampleInternships, type Internship } from "./sample-internships";
 
+// Sample listings help while developing, but must never be shown to real users.
+export const devSampleInternships: Internship[] = __DEV__ ? sampleInternships : [];
+
 export async function fetchInternships(): Promise<Internship[]> {
   const snapshot = await getDocs(collection(db, "internships"));
   const live = snapshot.docs
     .map((item) => ({ id: item.id, ...item.data() }))
     .filter((item: any) => item.isActive === true) as Internship[];
-  return live.length ? live : sampleInternships;
+  return live.length ? live : devSampleInternships;
 }
 
 export async function fetchInternship(id: string): Promise<Internship | null> {
-  const sample = sampleInternships.find((item) => item.id === id);
+  const sample = devSampleInternships.find((item) => item.id === id);
   if (sample) return sample;
   const snapshot = await getDoc(doc(db, "internships", id));
   return snapshot.exists() ? ({ id: snapshot.id, ...snapshot.data() } as Internship) : null;

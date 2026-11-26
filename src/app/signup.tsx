@@ -18,6 +18,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import GraduationCap from '@/components/graduation-cap';
+import { resetTo, setRememberMe as saveRememberMe } from '@/lib/session';
 import type { SignupErrors, SignupFields } from '@/lib/signup-validation';
 import { signupErrorMessage, validateSignup } from '@/lib/signup-validation';
 
@@ -242,9 +243,17 @@ export default function SignupScreen() {
             </View>
 
             {success ? (
-              <Link href={(role === 'employer' ? '/employer-dashboard' : '/home') as Href} style={styles.successLink}>
-                {role === 'employer' ? 'Continue to employer dashboard →' : 'Continue to home →'}
-              </Link>
+              <Pressable
+                accessibilityRole="link"
+                onPress={() => {
+                  saveRememberMe(true).catch(() => {});
+                  resetTo((role === 'employer' ? '/employer-dashboard' : '/home') as Href);
+                }}
+              >
+                <Text style={styles.successLink}>
+                  {role === 'employer' ? 'Continue to employer dashboard →' : 'Continue to home →'}
+                </Text>
+              </Pressable>
             ) : (
               <>
                 <Field

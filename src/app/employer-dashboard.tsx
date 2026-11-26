@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { router } from "expo-router";
+import { useCallback, useState } from "react";
+import { router, useFocusEffect } from "expo-router";
 import { Settings } from "lucide-react-native";
 import { Text, TouchableOpacity, View } from "react-native";
 import { Heading, Page, PrimaryButton, palette } from "@/components/internlink-ui";
@@ -10,11 +10,14 @@ export default function EmployerDashboardScreen() {
   const [jobs, setJobs] = useState<Internship[]>([]);
   const [applicantCount, setApplicantCount] = useState(0);
   const [message, setMessage] = useState("Loading employer workspace...");
-  useEffect(() => {
+  // Reload whenever the dashboard is shown, e.g. after posting a new internship.
+  useFocusEffect(useCallback(() => {
+    let active = true;
     Promise.all([fetchEmployerInternships(), fetchEmployerApplications()])
-      .then(([postings, applications]) => { setJobs(postings); setApplicantCount(applications.length); setMessage(""); })
-      .catch(() => setMessage("Sign in with an employer account to access these tools."));
-  }, []);
+      .then(([postings, applications]) => { if (!active) return; setJobs(postings); setApplicantCount(applications.length); setMessage(""); })
+      .catch(() => { if (active) setMessage("Sign in with an employer account to access these tools."); });
+    return () => { active = false; };
+  }, []));
   return <Page>
     <View style={{ flexDirection: "row", alignItems: "flex-start", gap: 10 }}>
       <View style={{ flex: 1 }}>
@@ -40,7 +43,7 @@ export default function EmployerDashboardScreen() {
       <TouchableOpacity onPress={() => router.push("/applicants" as any)}><Text style={{ color: palette.navy, fontWeight: "700", fontSize: 12 }}>View applicants</Text></TouchableOpacity>
     </View>
     {message ? <Text style={{ color: palette.muted, fontSize: 12 }}>{message}</Text> : null}
-    {jobs.map((job) => <TouchableOpacity key={job.id} onPress={() => router.push("/applicants" as any)} style={{ borderWidth: 1, borderColor: palette.border, borderRadius: 12, padding: 14, gap: 5 }}>
+    {jobs.map((job) => <TouchableOpacity key={job.id} onPress={() => router.push({ pathname: "/applicants", params: { jobId: job.id, title: job.title } } as any)} style={{ borderWidth: 1, borderColor: palette.border, borderRadius: 12, padding: 14, gap: 5 }}>
       <Text style={{ color: palette.ink, fontWeight: "800" }}>{job.title}</Text>
       <Text style={{ color: palette.muted, fontSize: 12 }}>{job.location} • {job.isActive ? "Active" : "Inactive"}</Text>
     </TouchableOpacity>)}

@@ -1,11 +1,9 @@
 
 import { Colors } from '@/constants/theme';
 import { NativeTabs } from 'expo-router/native-tabs';
-import { useColorScheme } from 'react-native';
 
 export default function AppTabs() {
-  const scheme = useColorScheme() ?? 'light';
-  const colors = Colors[scheme];
+  const colors = Colors.light;
 
   return (
     <NativeTabs

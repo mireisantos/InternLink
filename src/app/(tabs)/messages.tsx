@@ -1,13 +1,16 @@
 import { router } from "expo-router";
 import { PencilLine } from "lucide-react-native";
 import { Text, TouchableOpacity, View } from "react-native";
-import { CompanyAvatar, Heading, Page, palette } from "@/components/internlink-ui";
+import { CompanyAvatar, EmptyState, Heading, Page, palette } from "@/components/internlink-ui";
 
-const conversations = [
+// Placeholder conversations for development only. Messaging is not connected
+// to Firestore yet, so published builds show an empty state instead.
+const sampleConversations = [
   { id: "sunlife", company: "SunLife", preview: "Hi! We're excited to move forward with your application.", time: "10:24 AM" },
   { id: "pspsps", company: "Pspsps Media", preview: "Thanks for your application. We'll be in touch soon.", time: "Yesterday" },
   { id: "pixel", company: "Pixel Studio", preview: "We'd like to schedule an interview.", time: "Aug 27" },
 ];
+const conversations = __DEV__ ? sampleConversations : [];
 
 export default function MessagesScreen() {
   return (
@@ -16,7 +19,7 @@ export default function MessagesScreen() {
         <Heading title="Messages" />
         <PencilLine size={21} color={palette.navy} />
       </View>
-      {conversations.map((item) => (
+      {conversations.length ? conversations.map((item) => (
         <TouchableOpacity key={item.id} onPress={() => router.push({ pathname: "/conversation", params: { id: item.id, company: item.company } } as any)}
           style={{ flexDirection: "row", alignItems: "center", gap: 12, borderWidth: 1, borderColor: palette.border, borderRadius: 14, padding: 12 }}>
           <CompanyAvatar name={item.company} />
@@ -26,8 +29,8 @@ export default function MessagesScreen() {
           </View>
           <Text style={{ color: palette.muted, fontSize: 10 }}>{item.time}</Text>
         </TouchableOpacity>
-      ))}
-      <Text style={{ color: palette.muted, fontSize: 11, lineHeight: 17 }}>Conversation previews are sample content until messaging is connected to a Firestore message collection.</Text>
+      )) : <EmptyState title="No messages yet" description="When employers contact you about your applications, their messages will appear here." />}
+      {conversations.length ? <Text style={{ color: palette.muted, fontSize: 11, lineHeight: 17 }}>Development preview: these conversations are sample content until messaging is connected to Firestore.</Text> : null}
     </Page>
   );
 }

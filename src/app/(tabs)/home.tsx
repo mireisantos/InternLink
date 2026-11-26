@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { router } from "expo-router";
 import { ArrowRight, GraduationCap, Search } from "lucide-react-native";
 import { Text, TouchableOpacity, View } from "react-native";
@@ -6,7 +6,18 @@ import { EmptyState, Heading, JobCard, Page, palette } from "@/components/intern
 import { fetchCurrentProfile, fetchInternships } from "@/lib/internship-service";
 import type { Internship } from "@/lib/sample-internships";
 
+function timeOfDayGreeting() {
+  const hour = new Date().getHours();
+  if (hour < 12) return "Good morning";
+  if (hour < 18) return "Good afternoon";
+  return "Good evening";
+}
+const noSubscription = () => () => {};
+
 export default function HomeScreen() {
+  // The web version is pre-rendered at build time, so use a neutral greeting
+  // there and the real time of day once the app is running on the device.
+  const greeting = useSyncExternalStore(noSubscription, timeOfDayGreeting, () => "Welcome back");
   const [jobs, setJobs] = useState<Internship[]>([]);
   const [name, setName] = useState("there");
   const [loading, setLoading] = useState(true);
@@ -29,7 +40,7 @@ export default function HomeScreen() {
   return (
     <Page>
       <View style={{ gap: 2 }}>
-        <Text style={{ color: palette.muted, fontSize: 14 }}>Good morning,</Text>
+        <Text style={{ color: palette.muted, fontSize: 14 }}>{greeting},</Text>
         <Text style={{ color: palette.ink, fontSize: 25, fontWeight: "800" }}>{name} 👋</Text>
       </View>
 

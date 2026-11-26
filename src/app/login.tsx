@@ -1,5 +1,5 @@
 
-import { useRouter } from 'expo-router';
+import { useRouter, type Href } from 'expo-router';
 import {
     sendPasswordResetEmail,
     signInWithEmailAndPassword,
@@ -19,6 +19,7 @@ import {
 } from 'react-native';
 
 import GraduationCap from '@/components/graduation-cap';
+import { resetTo, setRememberMe as saveRememberMe } from '@/lib/session';
 import { auth, db } from '../../backend/firebaseConfig.js';
 
 export default function LoginScreen() {
@@ -26,7 +27,7 @@ export default function LoginScreen() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [rememberMe, setRememberMe] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
@@ -72,11 +73,8 @@ export default function LoginScreen() {
       }
 
       const profile = userDocument.data();
-      if (profile.role === 'employer') {
-        router.replace('/employer-dashboard' as any);
-      } else {
-        router.replace('/home' as any);
-      }
+      await saveRememberMe(rememberMe);
+      resetTo((profile.role === 'employer' ? '/employer-dashboard' : '/home') as Href);
     } catch (error: any) {
       console.log('Login error:', error);
 

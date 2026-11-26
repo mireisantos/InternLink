@@ -28,7 +28,9 @@ export default function ApplyScreen() {
     try {
       setBusy(true); setMessage("");
       await applyForInternship({ jobId: String(id), fullLegalName, contactEmail, phoneNumber, school, course, resumeUrl });
-      router.replace("/(tabs)/applications" as any);
+      // Back to the tabs (no duplicate tab stack), then open the Applications tab.
+      if (router.canDismiss()) router.dismissAll();
+      router.navigate("/applications" as any);
     } catch (error: any) {
       setMessage(error?.message || "Unable to submit your application.");
     } finally { setBusy(false); }

@@ -1,9 +1,10 @@
-import { router } from "expo-router";
+import { router, type Href } from "expo-router";
 import { sendPasswordResetEmail, signOut } from "firebase/auth";
 import { Text, TouchableOpacity } from "react-native";
 import { auth } from "../../backend/firebaseConfig.js";
 import { Heading, Page, palette } from "@/components/internlink-ui";
 import { fetchCurrentProfile } from "@/lib/internship-service";
+import { resetTo } from "@/lib/session";
 import { useEffect, useState } from "react";
 
 export default function SettingsScreen() {
@@ -16,7 +17,7 @@ export default function SettingsScreen() {
     catch { setMessage("Unable to send a password reset email."); }
   }
   async function logout() {
-    try { await signOut(auth); router.replace("/" as any); }
+    try { await signOut(auth); resetTo("/" as Href); }
     catch { setMessage("Unable to sign out. Please try again."); }
   }
   return <Page>

@@ -1,24 +1,7 @@
-
-import { useColorScheme } from 'react-native';
-
 import { Colors } from '@/constants/theme';
 
+// InternLink is designed for light mode only (app.json sets "userInterfaceStyle": "light").
+// Always return the light palette so web and native match even if the device is in dark mode.
 export function useTheme() {
-  const scheme = useColorScheme() ?? 'light';
-  return Colors[scheme];
-}
-
-export function useThemeColor(
-  props: { light?: string; dark?: string },
-  colorName: keyof typeof Colors.light & keyof typeof Colors.dark
-) {
-  const scheme = useColorScheme() ?? 'light';
-
-  const colorFromProps = props[scheme];
-
-  if (colorFromProps) {
-    return colorFromProps;
-  }
-
-  return Colors[scheme][colorName];
+  return Colors.light;
 }

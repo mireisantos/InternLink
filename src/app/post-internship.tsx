@@ -27,7 +27,7 @@ export default function PostInternshipScreen() {
         benefits: benefits.split("\n").map((item) => item.trim()).filter(Boolean),
         requiresResume,
       });
-      router.replace("/employer-dashboard" as any);
+      router.dismissTo("/employer-dashboard" as any);
     } catch (error: any) { setMessage(error?.message || "Unable to publish this internship."); }
     finally { setBusy(false); }
   }

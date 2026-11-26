@@ -3,21 +3,21 @@ import { router } from "expo-router";
 import { Heart, Search } from "lucide-react-native";
 import { Text, TextInput, TouchableOpacity, View } from "react-native";
 import { EmptyState, Heading, JobCard, Page, palette } from "@/components/internlink-ui";
-import { fetchCurrentProfile, fetchInternships } from "@/lib/internship-service";
-import { sampleInternships, type Internship } from "@/lib/sample-internships";
+import { devSampleInternships, fetchCurrentProfile, fetchInternships } from "@/lib/internship-service";
+import type { Internship } from "@/lib/sample-internships";
 import { toggleSavedInternship } from "../../../backend/app-tracker.js";
 
 const categories = ["All", "Tech", "Marketing", "Design", "Business"];
 
 export default function ExploreScreen() {
-  const [jobs, setJobs] = useState<Internship[]>(sampleInternships);
+  const [jobs, setJobs] = useState<Internship[]>(devSampleInternships);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
   const [saved, setSaved] = useState<string[]>([]);
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    fetchInternships().then(setJobs).catch(() => setMessage("Unable to load live listings. Showing sample opportunities."));
+    fetchInternships().then(setJobs).catch(() => setMessage(__DEV__ ? "Unable to load live listings. Showing sample opportunities." : "Unable to load internships. Please try again later."));
     fetchCurrentProfile()
       .then((profile) => {
         const ids = profile?.savedInternships;
@@ -27,7 +27,7 @@ export default function ExploreScreen() {
   }, []);
 
   const filtered = useMemo(() => jobs.filter((job) => {
-    const matchesCategory = category === "All" || job.category === category;
+    const matchesCategory = category === "All" || String(job.category || "").trim().toLowerCase() === category.toLowerCase();
     const haystack = `${job.title} ${job.company} ${job.location} ${job.category}`.toLowerCase();
     return matchesCategory && haystack.includes(search.toLowerCase());
   }), [jobs, category, search]);

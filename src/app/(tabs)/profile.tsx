@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { router } from "expo-router";
-import { ChevronRight, CircleHelp, Heart, Settings, Square, UserRoundPen } from "lucide-react-native";
+import { Bell, ChevronRight, Heart, Settings, Square, UserRoundPen } from "lucide-react-native";
 import { Text, TouchableOpacity, View } from "react-native";
 import { CompanyAvatar, Heading, Page, palette } from "@/components/internlink-ui";
 import { fetchCurrentProfile } from "@/lib/internship-service";
@@ -9,7 +9,7 @@ const menuItems = [
   { title: "My Profile", icon: UserRoundPen, route: "/edit-profile" },
   { title: "My Applications", icon: Square, route: "/(tabs)/applications" },
   { title: "Saved Internships", icon: Heart, route: "/saved" },
-  { title: "Notifications", icon: CircleHelp, route: "/notifications" },
+  { title: "Notifications", icon: Bell, route: "/notifications" },
   { title: "Settings", icon: Settings, route: "/settings" },
 ];
 

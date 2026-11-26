@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { router } from "expo-router";
+import { useCallback, useState } from "react";
+import { router, useFocusEffect } from "expo-router";
 import { Text, TouchableOpacity, View } from "react-native";
 import { EmptyState, Heading, Page, palette } from "@/components/internlink-ui";
 import { fetchStudentApplications } from "@/lib/internship-service";
@@ -19,11 +19,14 @@ export default function ApplicationsScreen() {
   const [tab, setTab] = useState<"Active" | "Past">("Active");
   const [message, setMessage] = useState("Loading your applications...");
 
-  useEffect(() => {
+  // Reload whenever the tab is shown, e.g. right after submitting an application.
+  useFocusEffect(useCallback(() => {
+    let active = true;
     fetchStudentApplications()
-      .then((rows) => { setItems(rows as Application[]); setMessage(""); })
-      .catch(() => setMessage("Sign in to view your applications."));
-  }, []);
+      .then((rows) => { if (active) { setItems(rows as Application[]); setMessage(""); } })
+      .catch(() => { if (active) setMessage("Sign in to view your applications."); });
+    return () => { active = false; };
+  }, []));
 
   const visible = items.filter((item) => {
     const status = String(item.status || "pending").toLowerCase();
