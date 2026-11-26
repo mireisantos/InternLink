@@ -1,5 +1,5 @@
-import { useEffect, useState, useSyncExternalStore } from "react";
-import { router } from "expo-router";
+import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
+import { router, useFocusEffect } from "expo-router";
 import { ArrowRight, GraduationCap, Search } from "lucide-react-native";
 import { Text, TouchableOpacity, View } from "react-native";
 import { EmptyState, Heading, JobCard, Page, palette } from "@/components/internlink-ui";
@@ -22,20 +22,26 @@ export default function HomeScreen() {
   const [name, setName] = useState("there");
   const [loading, setLoading] = useState(true);
 
+  // Listings load once when Home opens.
   useEffect(() => {
     let active = true;
-    Promise.all([fetchInternships(), fetchCurrentProfile()])
-      .then(([items, profile]) => {
-        if (!active) return;
-        setJobs(items.slice(0, 3));
-        setName(String(profile?.fullName || "there").split(" ")[0]);
-      })
-      .catch(() => {
-        if (active) setJobs([]);
-      })
-      .finally(() => active && setLoading(false));
+    fetchInternships()
+      .then((items) => { if (active) setJobs(items.slice(0, 3)); })
+      .catch(() => { if (active) setJobs([]); })
+      .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
   }, []);
+
+  // The name reloads whenever Home is shown, e.g. after saving changes in Edit Profile.
+  useFocusEffect(useCallback(() => {
+    let active = true;
+    fetchCurrentProfile()
+      .then((profile) => {
+        if (active) setName(String(profile?.fullName || "").trim().split(" ")[0] || "there");
+      })
+      .catch(() => {});
+    return () => { active = false; };
+  }, []));
 
   return (
     <Page>

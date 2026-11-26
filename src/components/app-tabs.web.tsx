@@ -8,18 +8,19 @@ import {
   TabTrigger,
   TabTriggerSlotProps,
 } from 'expo-router/ui';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 
 import { ThemedText } from './themed-text';
 import { ThemedView } from './themed-view';
 
-import { MaxContentWidth, Spacing } from '@/constants/theme';
+import { Colors, MaxContentWidth, Spacing } from '@/constants/theme';
 
+// Web-only tab bar. It sits above the screen in the normal layout, so it never
+// covers page headings, and on narrow screens the tabs scroll sideways instead
+// of being cut off.
 export default function AppTabs() {
   return (
     <Tabs>
-      <TabSlot style={{ height: '100%' }} />
-
       <TabList asChild>
         <CustomTabList>
           <TabTrigger name="home" href={"/home" as Href} asChild>
@@ -40,6 +41,8 @@ export default function AppTabs() {
           </TabTrigger>
         </CustomTabList>
       </TabList>
+
+      <TabSlot style={{ flex: 1 }} />
     </Tabs>
   );
 }
@@ -71,15 +74,30 @@ export function TabButton({
 }
 
 export function CustomTabList(props: TabListProps) {
+  const { width } = useWindowDimensions();
+  // The brand label only fits next to all five tabs on wider screens.
+  const showBrand = width >= 640;
+
   return (
     <View {...props} style={styles.tabListContainer}>
       <ThemedView type="backgroundElement" style={styles.innerContainer}>
-        <ThemedText type="smallBold" style={styles.brandText}>
-          InternLink
-        </ThemedText>
+        {showBrand ? (
+          <ThemedText type="smallBold">
+            InternLink
+          </ThemedText>
+        ) : null}
 
-        {props.children}
-
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.tabsScroll}
+          contentContainerStyle={[
+            styles.tabs,
+            { justifyContent: showBrand ? 'flex-end' : 'center' },
+          ]}
+        >
+          {props.children}
+        </ScrollView>
       </ThemedView>
     </View>
   );
@@ -87,27 +105,37 @@ export function CustomTabList(props: TabListProps) {
 
 const styles = StyleSheet.create({
   tabListContainer: {
-    position: 'absolute',
     width: '100%',
-    padding: Spacing.three,
+    paddingVertical: Spacing.two,
+    paddingHorizontal: Spacing.three,
     justifyContent: 'center',
     alignItems: 'center',
     flexDirection: 'row',
+    backgroundColor: Colors.light.background,
   },
 
   innerContainer: {
     paddingVertical: Spacing.two,
-    paddingHorizontal: Spacing.five,
+    paddingHorizontal: Spacing.three,
     borderRadius: Spacing.five,
     flexDirection: 'row',
     alignItems: 'center',
     flexGrow: 1,
+    flexShrink: 1,
     gap: Spacing.two,
     maxWidth: MaxContentWidth,
   },
 
-  brandText: {
-    marginRight: 'auto',
+  tabsScroll: {
+    flex: 1,
+  },
+
+  // flexGrow lets justifyContent centre or right-align the tabs when they fit;
+  // when they don't fit, the row is as wide as its content and scrolls.
+  tabs: {
+    flexGrow: 1,
+    alignItems: 'center',
+    gap: Spacing.one,
   },
 
   pressed: {

@@ -11,11 +11,13 @@ export default function InternshipDetailsScreen() {
   const [error, setError] = useState("");
   useEffect(() => {
     if (!id) return;
-    fetchInternship(String(id)).then(setJob).catch(() => setError("Unable to load this internship."));
+    fetchInternship(String(id))
+      .then((item) => { if (item) setJob(item); else setError("This internship is no longer available."); })
+      .catch(() => setError("Unable to load this internship."));
   }, [id]);
   const isSample = String(id || "").startsWith("sample-");
 
-  if (!job) return <Page><Heading title="Internship Details" back onBack={() => router.back()} /><Text style={{ color: palette.muted }}>{error || "Loading internship..."}</Text></Page>;
+  if (!job) return <Page><Heading title="Internship Details" back onBack={() => router.back()} /><Text style={{ color: palette.muted }}>{error || (id ? "Loading internship..." : "This internship is no longer available.")}</Text></Page>;
 
   return (
     <Page>
@@ -26,7 +28,7 @@ export default function InternshipDetailsScreen() {
           <Text style={{ color: palette.ink, fontWeight: "800", fontSize: 16 }}>{job.title}</Text>
           <Text style={{ color: palette.muted, fontSize: 12 }}>{job.company}</Text>
           <Text style={{ color: palette.muted, fontSize: 11 }}>⌖ {job.location}</Text>
-          <Text style={{ color: palette.navy, fontSize: 11, fontWeight: "700" }}>{job.allowance} • {job.duration}</Text>
+          <Text style={{ color: palette.navy, fontSize: 11, fontWeight: "700" }}>{[job.allowance, job.duration].filter(Boolean).join(" • ")}</Text>
         </View>
       </View>
       <View style={{ gap: 8 }}>
@@ -42,6 +44,7 @@ export default function InternshipDetailsScreen() {
         {job.benefits?.map((item, index) => <View key={index} style={{ backgroundColor: palette.pale, padding: 11, borderRadius: 8 }}><Text style={{ color: palette.navy, fontSize: 12, fontWeight: "700" }}>{item}</Text></View>)}
       </View>
       {isSample ? <Text style={{ color: palette.muted, fontSize: 11 }}>This is a sample Figma listing. Applying is available on live employer postings.</Text> :
+        job.isActive === false ? <Text style={{ color: palette.muted, fontSize: 12 }}>This internship is no longer accepting applications.</Text> :
         <PrimaryButton title="Apply Now" onPress={() => router.push({ pathname: "/apply", params: { id: job.id } } as any)} />}
     </Page>
   );

@@ -33,9 +33,9 @@ See `IMPLEMENTATION_NOTES.md` for the current screen coverage, Firestore data mo
    npx expo install
    ```
 
-2. Create a root `.env` file using the six `EXPO_PUBLIC_FIREBASE_*` values from your Firebase web app configuration.
-3. Configure real HTTPS values for `EXPO_PUBLIC_TERMS_URL` and `EXPO_PUBLIC_PRIVACY_URL` before enabling signup.
-4. Review `firestore.rules` against your Firebase project and deploy only after confirming the rules fit your final data model.
+2. Copy `.env.example` to `.env` and fill in the six `EXPO_PUBLIC_FIREBASE_*` values from your Firebase web app configuration (Firebase console → Project settings → Your apps → Web app). Restart Expo with `npx expo start -c` after changing `.env`.
+3. Set real HTTPS values for `EXPO_PUBLIC_TERMS_URL` and `EXPO_PUBLIC_PRIVACY_URL` before publishing. Signup works without them during development, but production builds block signup until both are set.
+4. Publish `firestore.rules` to your Firebase project (Firestore Database → Rules → Publish, or `npx firebase-tools deploy --only firestore:rules --project <your-project-id>`). The app depends on these rules: Firebase's default rules block every request, and looser rules let users read or change each other's data.
 
 ## Validation
 

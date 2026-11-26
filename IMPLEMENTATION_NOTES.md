@@ -3,7 +3,9 @@
 ## Implemented in this source snapshot
 
 ### Main entry and authentication
-- Root route opens the role-selection screen.
+- Root route waits for Firebase to restore a saved login: signed-in students go to Home, employers go to `/employer-dashboard`, and everyone else sees role selection.
+- Login has a working "Remember me" option (ticked by default). If it is unticked, the user is signed out the next time the app opens.
+- Logging in, signing up, and signing out clear the navigation history, so the Android back button cannot return to screens from the previous session.
 - Role selection routes students to the student onboarding screen and employers to employer signup.
 - Login remains at `/login`; signup remains at `/signup`.
 - Login routes students to the student tabs and employer accounts to `/employer-dashboard`.
@@ -26,6 +28,8 @@
 ### Messaging
 - Messages list and conversation screen follow the Figma visual direction.
 - The conversation screen currently uses local preview messages. It does NOT send or persist messages to Firestore yet.
+- Sample conversations appear only in development (`__DEV__`). Production builds show a "No messages yet" empty state.
+- Sample internships likewise appear only in development, when there are no live listings.
 
 ### Employer experience
 - Employer dashboard lists postings owned by the signed-in employer and counts received applications.
@@ -68,11 +72,11 @@ Written by `backend/internship-app.js`:
 
 ## Important setup still required
 
-1. The root `.env` on the user's computer is intentionally excluded from this archive. Keep it locally and do not upload it to Git.
-2. Signup remains intentionally blocked until real HTTPS values are configured for `EXPO_PUBLIC_TERMS_URL` and `EXPO_PUBLIC_PRIVACY_URL`.
+1. The root `.env` is ignored by Git and must never be committed. Copy `.env.example` to `.env` and fill in the Firebase values locally.
+2. Signup works during development without Terms/Privacy links, but production builds block signup until real HTTPS values are configured for `EXPO_PUBLIC_TERMS_URL` and `EXPO_PUBLIC_PRIVACY_URL`.
 3. Resume handling currently accepts a shareable resume URL. Native file selection and Firebase Storage upload are not implemented; this needs `expo-document-picker` and Storage setup.
 4. Messaging is currently a UI preview only. It needs a Firestore conversations/messages data model and security rules.
-5. The `firestore.rules` file in this project is a starting ruleset. Review it against the actual Firebase project and deploy it through Firebase before relying on live user data.
+5. The `firestore.rules` file must be published to the Firebase project. The app's features and security depend on it: Firebase's default rules block every request, and looser rules let users read or change each other's data.
 6. Employer self-registration currently permits a user to select the employer role. A production system should add an employer verification/approval process before allowing public job postings.
 7. Google sign-in remains an unconfigured placeholder.
 8. Notification records and push notifications are not implemented.

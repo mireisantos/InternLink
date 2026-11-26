@@ -18,7 +18,16 @@ export default function ApplyScreen() {
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
 
-  useEffect(() => { if (id) fetchInternship(String(id)).then(setJob).catch(() => setMessage("Unable to load internship.")); }, [id]);
+  useEffect(() => {
+    if (!id) return;
+    fetchInternship(String(id))
+      .then((item) => {
+        if (!item) { setMessage("This internship is no longer available."); return; }
+        setJob(item);
+        if (item.isActive === false) setMessage("This internship is no longer accepting applications.");
+      })
+      .catch(() => setMessage("Unable to load internship."));
+  }, [id]);
 
   async function submit() {
     if (!job || String(id).startsWith("sample-")) {
@@ -55,7 +64,7 @@ export default function ApplyScreen() {
         <Field label="Resume URL" value={resumeUrl} onChangeText={setResumeUrl} placeholder="https://..." autoCapitalize="none" />
       </View> : <Text style={{ color: palette.green, backgroundColor: palette.pale, padding: 12, borderRadius: 9, fontSize: 12 }}>No CV / Resume required for this posting.</Text>}
       {message ? <Text style={{ color: palette.red, fontSize: 12 }}>{message}</Text> : null}
-      <PrimaryButton title={busy ? "Submitting..." : "Submit Application"} onPress={submit} disabled={busy || !job} />
+      <PrimaryButton title={busy ? "Submitting..." : "Submit Application"} onPress={submit} disabled={busy || !job || job.isActive === false} />
     </Page>
   );
 }

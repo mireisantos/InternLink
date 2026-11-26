@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { router } from "expo-router";
+import { useCallback, useState } from "react";
+import { router, useFocusEffect } from "expo-router";
 import { Bell, ChevronRight, Heart, Settings, Square, UserRoundPen } from "lucide-react-native";
 import { Text, TouchableOpacity, View } from "react-native";
 import { CompanyAvatar, Heading, Page, palette } from "@/components/internlink-ui";
@@ -15,7 +15,14 @@ const menuItems = [
 
 export default function ProfileScreen() {
   const [profile, setProfile] = useState<Record<string, any> | null>(null);
-  useEffect(() => { fetchCurrentProfile().then(setProfile).catch(() => setProfile(null)); }, []);
+  // Reload whenever the tab is shown, e.g. after saving changes in Edit Profile.
+  useFocusEffect(useCallback(() => {
+    let active = true;
+    fetchCurrentProfile()
+      .then((data) => { if (active) setProfile(data); })
+      .catch(() => { if (active) setProfile(null); });
+    return () => { active = false; };
+  }, []));
   const fullName = String(profile?.fullName || "Your name");
   const email = String(profile?.email || "");
   const initials = fullName.split(" ").map((part) => part[0]).slice(0, 2).join("").toUpperCase();
