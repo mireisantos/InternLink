@@ -1,6 +1,8 @@
 import {
     addDoc,
     collection,
+    doc,
+    getDoc,
     serverTimestamp,
 } from "firebase/firestore";
 
@@ -22,6 +24,11 @@ export async function postInternship({
 
     if (!user) {
         throw new Error("You must be logged in to post an internship.");
+    }
+
+    const profileSnapshot = await getDoc(doc(db, "users", user.uid));
+    if (!profileSnapshot.exists() || profileSnapshot.data().role !== "employer") {
+        throw new Error("Only employer accounts can publish internships.");
     }
 
     if (!title?.trim()) {
