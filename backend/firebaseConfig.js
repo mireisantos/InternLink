@@ -2,10 +2,12 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { initializeApp } from "firebase/app";
 import {
+  getAuth,
   getReactNativePersistence,
   initializeAuth
 } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
+import { Platform } from "react-native";
 
 const firebaseConfig = {
   apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
@@ -16,10 +18,29 @@ const firebaseConfig = {
   appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID
 };
 
-const app = initializeApp(firebaseConfig);
+// initializeAuth throws "auth/invalid-api-key" synchronously when the config is
+// missing, which would crash every route at import time. Only initialize when
+// the required values exist; screens check `firebaseReady` before using Firebase.
+export const firebaseReady = Boolean(
+  firebaseConfig.apiKey &&
+  firebaseConfig.authDomain &&
+  firebaseConfig.projectId &&
+  firebaseConfig.appId
+);
 
-export const auth = initializeAuth(app, {
-  persistence: getReactNativePersistence(AsyncStorage)
-});
+if (!firebaseReady) {
+  console.warn(
+    "Firebase is not configured. Copy .env.example to .env, fill in the EXPO_PUBLIC_FIREBASE_* values, and restart Expo with `npx expo start -c`."
+  );
+}
 
-export const db = getFirestore(app);
+const app = firebaseReady ? initializeApp(firebaseConfig) : null;
+
+// getReactNativePersistence only exists in the React Native build of firebase/auth.
+export const auth = app
+  ? Platform.OS === "web"
+    ? getAuth(app)
+    : initializeAuth(app, { persistence: getReactNativePersistence(AsyncStorage) })
+  : null;
+
+export const db = app ? getFirestore(app) : null;

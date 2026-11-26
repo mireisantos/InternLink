@@ -26,6 +26,11 @@ export async function fetchInternship(id: string): Promise<Internship | null> {
   return snapshot.exists() ? ({ id: snapshot.id, ...snapshot.data() } as Internship) : null;
 }
 
+export async function fetchApplication(id: string): Promise<Record<string, any> | null> {
+  const snapshot = await getDoc(doc(db, "applications", id));
+  return snapshot.exists() ? snapshot.data() : null;
+}
+
 export async function fetchCurrentProfile(): Promise<Record<string, any> | null> {
   const user = auth.currentUser;
   if (!user) return null;

@@ -1,6 +1,6 @@
 import { router } from "expo-router";
 import { sendPasswordResetEmail, signOut } from "firebase/auth";
-import { Text, TouchableOpacity, View } from "react-native";
+import { Text, TouchableOpacity } from "react-native";
 import { auth } from "../../backend/firebaseConfig.js";
 import { Heading, Page, palette } from "@/components/internlink-ui";
 import { fetchCurrentProfile } from "@/lib/internship-service";

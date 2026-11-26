@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { router, useLocalSearchParams } from "expo-router";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { doc, updateDoc } from "firebase/firestore";
 import { Text, TouchableOpacity, View } from "react-native";
 import { db } from "../../backend/firebaseConfig.js";
 import { Heading, Page, palette } from "@/components/internlink-ui";
+import { fetchApplication } from "@/lib/internship-service";
 
 export default function ApplicantDetailsScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -11,8 +12,8 @@ export default function ApplicantDetailsScreen() {
   const [message, setMessage] = useState("Loading applicant...");
   useEffect(() => {
     if (!id) return;
-    getDoc(doc(db, "applications", String(id))).then((snapshot) => {
-      if (snapshot.exists()) { setItem(snapshot.data()); setMessage(""); }
+    fetchApplication(String(id)).then((application) => {
+      if (application) { setItem(application); setMessage(""); }
       else setMessage("Applicant not found.");
     }).catch(() => setMessage("Unable to load applicant."));
   }, [id]);

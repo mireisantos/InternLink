@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { router } from "expo-router";
+import { Settings } from "lucide-react-native";
 import { Text, TouchableOpacity, View } from "react-native";
 import { Heading, Page, PrimaryButton, palette } from "@/components/internlink-ui";
 import { fetchEmployerApplications, fetchEmployerInternships } from "@/lib/internship-service";
@@ -15,7 +16,14 @@ export default function EmployerDashboardScreen() {
       .catch(() => setMessage("Sign in with an employer account to access these tools."));
   }, []);
   return <Page>
-    <Heading title="Employer Dashboard" subtitle="Manage your internship opportunities and applicants." />
+    <View style={{ flexDirection: "row", alignItems: "flex-start", gap: 10 }}>
+      <View style={{ flex: 1 }}>
+        <Heading title="Employer Dashboard" subtitle="Manage your internship opportunities and applicants." />
+      </View>
+      <TouchableOpacity accessibilityRole="button" accessibilityLabel="Settings" hitSlop={10} onPress={() => router.push("/settings" as any)}>
+        <Settings size={22} color={palette.navy} />
+      </TouchableOpacity>
+    </View>
     <View style={{ flexDirection: "row", gap: 10 }}>
       <View style={{ flex: 1, backgroundColor: palette.pale, padding: 15, borderRadius: 12 }}>
         <Text style={{ color: palette.navy, fontSize: 23, fontWeight: "900" }}>{jobs.length}</Text>

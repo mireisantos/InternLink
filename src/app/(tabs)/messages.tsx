@@ -1,7 +1,7 @@
 import { router } from "expo-router";
 import { PencilLine } from "lucide-react-native";
 import { Text, TouchableOpacity, View } from "react-native";
-import { CompanyAvatar, EmptyState, Heading, Page, palette } from "@/components/internlink-ui";
+import { CompanyAvatar, Heading, Page, palette } from "@/components/internlink-ui";
 
 const conversations = [
   { id: "sunlife", company: "SunLife", preview: "Hi! We're excited to move forward with your application.", time: "10:24 AM" },

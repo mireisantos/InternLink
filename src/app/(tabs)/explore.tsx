@@ -3,7 +3,7 @@ import { router } from "expo-router";
 import { Heart, Search } from "lucide-react-native";
 import { Text, TextInput, TouchableOpacity, View } from "react-native";
 import { EmptyState, Heading, JobCard, Page, palette } from "@/components/internlink-ui";
-import { fetchInternships } from "@/lib/internship-service";
+import { fetchCurrentProfile, fetchInternships } from "@/lib/internship-service";
 import { sampleInternships, type Internship } from "@/lib/sample-internships";
 import { toggleSavedInternship } from "../../../backend/app-tracker.js";
 
@@ -18,6 +18,12 @@ export default function ExploreScreen() {
 
   useEffect(() => {
     fetchInternships().then(setJobs).catch(() => setMessage("Unable to load live listings. Showing sample opportunities."));
+    fetchCurrentProfile()
+      .then((profile) => {
+        const ids = profile?.savedInternships;
+        if (Array.isArray(ids)) setSaved(ids.filter((id): id is string => typeof id === "string"));
+      })
+      .catch(() => {});
   }, []);
 
   const filtered = useMemo(() => jobs.filter((job) => {

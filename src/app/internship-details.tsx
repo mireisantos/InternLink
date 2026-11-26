@@ -38,7 +38,7 @@ export default function InternshipDetailsScreen() {
         {job.requirements?.map((item, index) => <Text key={index} style={{ color: palette.muted, fontSize: 13, lineHeight: 19 }}>• {item}</Text>)}
       </View>
       <View style={{ gap: 8 }}>
-        <Text style={{ color: palette.ink, fontWeight: "800", fontSize: 16 }}>What you'll gain</Text>
+        <Text style={{ color: palette.ink, fontWeight: "800", fontSize: 16 }}>{"What you'll gain"}</Text>
         {job.benefits?.map((item, index) => <View key={index} style={{ backgroundColor: palette.pale, padding: 11, borderRadius: 8 }}><Text style={{ color: palette.navy, fontSize: 12, fontWeight: "700" }}>{item}</Text></View>)}
       </View>
       {isSample ? <Text style={{ color: palette.muted, fontSize: 11 }}>This is a sample Figma listing. Applying is available on live employer postings.</Text> :

@@ -27,7 +27,9 @@ const privacyUrl = process.env.EXPO_PUBLIC_PRIVACY_URL;
 const validUrl = (url?: string): url is string =>
   !!url && /^https:\/\//.test(url);
 
-const termsReady = validUrl(termsUrl) && validUrl(privacyUrl);
+// Production builds stay blocked until real Terms/Privacy URLs are configured.
+// In development (`npx expo start`), allow signup so the flow can be tested.
+const termsReady = (validUrl(termsUrl) && validUrl(privacyUrl)) || __DEV__;
 
 const firebaseReady = [
   process.env.EXPO_PUBLIC_FIREBASE_API_KEY,

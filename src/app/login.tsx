@@ -229,7 +229,7 @@ export default function LoginScreen() {
 
             <View style={styles.signupRow}>
               <Text style={styles.signupText}>
-                Don't have an account?{' '}
+                {"Don't have an account? "}
               </Text>
               <Pressable onPress={() => router.push('/signup')}>
                 <Text style={styles.signupLink}>Sign Up</Text>

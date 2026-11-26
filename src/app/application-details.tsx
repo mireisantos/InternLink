@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
 import { router, useLocalSearchParams } from "expo-router";
-import { doc, getDoc } from "firebase/firestore";
 import { Text, View } from "react-native";
-import { db } from "../../backend/firebaseConfig.js";
 import { Heading, Page, palette } from "@/components/internlink-ui";
+import { fetchApplication } from "@/lib/internship-service";
 
 export default function ApplicationDetailsScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -11,8 +10,8 @@ export default function ApplicationDetailsScreen() {
   const [message, setMessage] = useState("Loading application...");
   useEffect(() => {
     if (!id) return;
-    getDoc(doc(db, "applications", String(id))).then((snapshot) => {
-      if (snapshot.exists()) { setData(snapshot.data()); setMessage(""); }
+    fetchApplication(String(id)).then((application) => {
+      if (application) { setData(application); setMessage(""); }
       else setMessage("Application not found.");
     }).catch(() => setMessage("Unable to load application."));
   }, [id]);
